@@ -670,4 +670,20 @@ public class ContextWrapper extends Context {
     public DisplayAdjustments getDisplayAdjustments(int displayId) {
         return mBase.getDisplayAdjustments(displayId);
     }
+
+    /**
+     * @hide
+     */
+    @Override
+    public int pffEnforceCallingOrSelfPermission(String permission, String message) {
+        return mBase.pffEnforceCallingOrSelfPermission(permission, message);
+    }
+    /**
+     * @hide
+     */
+    @Override
+    public int pffCheckCallingOrSelfPermission(String permission) {
+        return mBase.pffCheckCallingOrSelfPermission(permission);
+    }
+    
 }

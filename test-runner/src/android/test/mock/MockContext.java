@@ -598,4 +598,21 @@ public class MockContext extends Context {
     public File[] getExternalCacheDirs() {
         throw new UnsupportedOperationException();
     }
+
+    /**
+	* @hide
+	*/
+    @Override
+    public int pffEnforceCallingOrSelfPermission(String permission, String message) {
+    	throw new UnsupportedOperationException();
+    }
+    
+	/**
+	* @hide
+	*/
+    @Override
+	public int pffCheckCallingOrSelfPermission(String permission) {
+		throw new UnsupportedOperationException();
+	}    
+
 }

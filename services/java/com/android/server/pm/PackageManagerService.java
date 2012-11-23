@@ -92,6 +92,7 @@ import android.content.pm.VerificationParams;
 import android.content.pm.VerifierDeviceIdentity;
 import android.content.pm.VerifierInfo;
 import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
@@ -177,6 +178,7 @@ adb shell am instrument -w -e class com.android.unit_tests.PackageManagerTests c
  */
 public class PackageManagerService extends IPackageManager.Stub {
     static final String TAG = "PackageManager";
+    static final String LOG_TAG = "PM";    
     static final boolean DEBUG_SETTINGS = false;
     static final boolean DEBUG_PREFERRED = false;
     static final boolean DEBUG_UPGRADE = false;
@@ -506,6 +508,21 @@ public class PackageManagerService extends IPackageManager.Stub {
     // package uri's from external media onto secure containers
     // or internal storage.
     private IMediaContainerService mContainerService = null;
+    
+    boolean mIsPermManagementEnabled = false;
+    SecureSettingsObserver mSecureSettingsObserver;
+    
+    private final class SecureSettingsObserver extends ContentObserver {
+    	public SecureSettingsObserver(final Handler handler) {
+    		super(handler);
+    	}
+    	
+    	@Override
+    	public void onChange(final boolean selfChange) {
+    		super.onChange(selfChange);
+    		mIsPermManagementEnabled = isPermManagementEnabled();
+    	}
+    }
 
     static final int SEND_PENDING_BROADCAST = 1;
     static final int MCS_BOUND = 3;
@@ -2181,6 +2198,15 @@ public class PackageManagerService extends IPackageManager.Stub {
                 + " is not privileged to communicate with user=" + userId);
     }
 
+    private boolean isPermManagementEnabled() {
+        int defalut = mContext.getResources().getBoolean( 
+                com.android.internal.R.bool.config_enablePermissionsManagement) ? 1 : 0;
+        int res = android.provider.Settings.Secure.getInt(mContext.getContentResolver(),
+                android.provider.Settings.Secure.ENABLE_PERMISSIONS_MANAGEMENT,
+                defalut); 
+        return res == 1;
+    }
+    
     public int checkPermission(String permName, String pkgName) {
         synchronized (mPackages) {
             PackageParser.Package p = mPackages.get(pkgName);
@@ -6894,6 +6920,46 @@ public class PackageManagerService extends IPackageManager.Stub {
         mHandler.sendMessage(msg);
     }
 
+    
+    public String[] getSpoofedPermissions(final String pkgName) {
+        mContext.enforceCallingOrSelfPermission(
+                android.Manifest.permission.REVOKE_PERMISSIONS, null);
+
+        String[] result = null; 
+        synchronized (mPackages) {
+            final PackageParser.Package p = mPackages.get(pkgName);
+            if (p != null && p.mExtras != null) {
+                final PackageSetting ps = (PackageSetting)p.mExtras;
+                if (ps.sharedUser != null) {
+                    result = new String[ps.sharedUser.spoofedPermissions.size()];
+                    ps.sharedUser.spoofedPermissions.toArray(result);
+                } else {
+                    result = new String[ps.spoofedPermissions.size()];
+                    ps.spoofedPermissions.toArray(result);
+                }
+            }
+        }
+        return result;
+    }
+    
+    public void setSpoofedPermissions(final String pkgName, final String[] perms) {
+        mContext.enforceCallingOrSelfPermission(
+                android.Manifest.permission.REVOKE_PERMISSIONS, null);
+        synchronized (mPackages) {
+            final PackageParser.Package p = mPackages.get(pkgName);
+            if ((p.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                if (p != null && p.mExtras != null) {
+                    final PackageSetting ps = (PackageSetting)p.mExtras;
+                    final GrantedPermissions gp = ps.sharedUser == null ? ps : ps.sharedUser;
+                    gp.spoofedPermissions.clear();
+                    gp.spoofedPermissions.addAll(Arrays.asList(perms));
+//                    gp.revokedPermissions.removeAll(gp.spoofedPermissions);
+//                    updateRevokedGids(gp);
+                    mSettings.writeLPr();
+                }
+            }
+        }
+    }
     /**
      * Get the verification agent timeout.
      *
@@ -11576,4 +11642,75 @@ public class PackageManagerService extends IPackageManager.Stub {
             Binder.restoreCallingIdentity(token);
         }
     }
+    
+    public int pffCheckPermission(String permName, String pkgName) {
+//        mContext.enforceCallingOrSelfPermission(
+//                android.Manifest.permission.PFF_FREQUENCY, null);
+
+        synchronized (mPackages) {
+            if (isPermManagementEnabled()) {
+                PackageParser.Package p = mPackages.get(pkgName);
+                if (p != null && p.mExtras != null) {
+                    PackageSetting ps = (PackageSetting)p.mExtras;
+                    GrantedPermissions gp;
+                    gp = ps.sharedUser != null ? ps.sharedUser : ps;
+                    if (gp.spoofedPermissions.contains(permName)) {
+                    	Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckPermission: PERMISSION_SPOOFED");
+                        return PackageManager.PERMISSION_SPOOFED;
+                    }
+/* Guhl: revoke disabled for now
+                    else if (gp.revokedPermissions.contains(permName)) {
+                        return PackageManager.PERMISSION_REVOKED;
+                    }
+*/                    
+                    else if (gp.grantedPermissions.contains(permName)) {
+                    	Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckPermission: PERMISSION_SPOOFED");
+                        return PackageManager.PERMISSION_GRANTED;
+                    }
+                }
+            }
+            else {
+                checkPermission(permName, pkgName);
+            }
+        }
+        return PackageManager.PERMISSION_DENIED;
+    }
+
+    public int pffCheckUidPermission(String permName, int uid) {
+//        mContext.enforceCallingOrSelfPermission(
+//                android.Manifest.permission.PFF_FREQUENCY, null);
+        synchronized (mPackages) {
+            if (isPermManagementEnabled()) {
+                Object obj = mSettings.getUserIdLPr(uid);
+                if (obj != null) {
+                    GrantedPermissions gp = (GrantedPermissions)obj;
+                    if (gp.spoofedPermissions.contains(permName)) {
+                    	Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckUidPermission: PERMISSION_SPOOFED");
+                        return PackageManager.PERMISSION_SPOOFED;
+                    }
+/* Guhl: revoke disabled for now
+                    else if (gp.revokedPermissions.contains(permName)) {
+                        return PackageManager.PERMISSION_REVOKED;
+                    }
+*/                    
+                    else if (gp.grantedPermissions.contains(permName)) {
+                    	Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckUidPermission: PERMISSION_GRANTED");
+                        return PackageManager.PERMISSION_GRANTED;
+                    }
+                } else {
+                    HashSet<String> perms = mSystemPermissions.get(uid);
+                    if (perms != null && perms.contains(permName)) {
+                    	Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckUidPermission: PERMISSION_GRANTED");
+                        return PackageManager.PERMISSION_GRANTED;
+                    }
+                }
+            }
+            else {
+                return checkUidPermission(permName, uid);
+            }
+        }
+    	Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckUidPermission: PERMISSION_DENIED");
+        return PackageManager.PERMISSION_DENIED;
+    }
+    
 }

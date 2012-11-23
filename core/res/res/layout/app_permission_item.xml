@@ -37,14 +37,30 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:background="?android:attr/dividerVertical" />
+	
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	    android:layout_weight="1">
 
-    <TextView
-        android:id="@+id/perm_name"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|left" />
+	    <TextView
+	        android:id="@+id/perm_name"
+	        android:textAppearance="?android:attr/textAppearanceSmall"
+	        android:textSize="16sp"
+	        android:layout_marginStart="8dp"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="top|left" />
+
+	    <Switch
+	        android:id="@+id/spoof_button"
+	        android:text="@string/spoof"
+	        android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dip"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1" />
+    </LinearLayout>         
 
 </view>

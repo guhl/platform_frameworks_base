@@ -1757,4 +1757,11 @@
   <java-symbol type="dimen" name="subtitle_shadow_radius" />
   <java-symbol type="dimen" name="subtitle_shadow_offset" />
   <java-symbol type="dimen" name="subtitle_outline_width" />
+
+  <!-- Guhl: privacy framework -->
+  <java-symbol type="xml" name="spoofed_permissions" />
+  <java-symbol type="bool" name="config_enablePermissionsManagement" />
+  <java-symbol type="id" name="spoof_button" />
+  <!-- Guhl: end privacy framework -->
+  
 </resources>
