@@ -158,6 +158,7 @@ class PackageSettingBase extends GrantedPermissions {
     public void copyFrom(PackageSettingBase base) {
         grantedPermissions = base.grantedPermissions;
         gids = base.gids;
+        spoofedPermissions = base.spoofedPermissions;
 
         timeStamp = base.timeStamp;
         firstInstallTime = base.firstInstallTime;

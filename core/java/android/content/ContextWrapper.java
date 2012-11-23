@@ -649,4 +649,20 @@ public class ContextWrapper extends Context {
     public CompatibilityInfoHolder getCompatibilityInfo(int displayId) {
         return mBase.getCompatibilityInfo(displayId);
     }
+
+    /**
+     * @hide
+     */
+    @Override
+    public int pffEnforceCallingOrSelfPermission(String permission, String message) {
+        return mBase.pffEnforceCallingOrSelfPermission(permission, message);
+    }
+    /**
+     * @hide
+     */
+    @Override
+    public int pffCheckCallingOrSelfPermission(String permission) {
+        return mBase.pffCheckCallingOrSelfPermission(permission);
+    }
+    
 }

@@ -1838,4 +1838,10 @@
   <java-symbol type="attr" name="actionModeWebSearchDrawable" />
   <java-symbol type="string" name="websearch" />
 
+  <!-- Guhl: privacy framework -->
+  <java-symbol type="xml" name="spoofed_permissions" />
+  <java-symbol type="bool" name="config_enablePermissionsManagement" />
+  <java-symbol type="id" name="spoof_button" />
+  <!-- Guhl: end privacy framework -->
+  
 </resources>

@@ -608,4 +608,20 @@ public class MockPackageManager extends PackageManager {
     public VerifierDeviceIdentity getVerifierDeviceIdentity() {
         throw new UnsupportedOperationException();
     }
+
+    /**
+	* @hide
+	*/
+	@Override
+	public String[] getSpoofedPermissions(String packageName) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	* @hide
+	*/
+	@Override
+	public void setSpoofedPermissions(String packageName, String[] perms) {
+		throw new UnsupportedOperationException();
+	}    
 }

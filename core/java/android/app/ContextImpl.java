@@ -2046,4 +2046,56 @@ class ContextImpl extends Context {
             mMainThread.handleUnstableProviderDied(icp.asBinder(), true);
         }
     }
+    
+    private void pffEnforce(
+            String permission, int resultOfCheck,
+            boolean selfToo, int uid, String message) {
+        if (resultOfCheck != PackageManager.PERMISSION_GRANTED &&
+                resultOfCheck != PackageManager.PERMISSION_SPOOFED) {
+            throw new SecurityException(
+                    (message != null ? (message + ": ") : "") +
+                    (selfToo
+                     ? "Neither user " + uid + " nor current process has "
+                     : "User " + uid + " does not have ") +
+                    permission +
+                    ".");
+        }
+    }
+
+    public int pffEnforceCallingOrSelfPermission(
+            String permission, String message) {
+        int result = pffCheckCallingOrSelfPermission(permission);
+        pffEnforce(permission,
+                result,
+                true,
+                Binder.getCallingUid(),
+                message);
+        return result;
+    }
+
+    public int pffCheckCallingOrSelfPermission(String permission) {
+        if (permission == null) {
+            throw new IllegalArgumentException("permission is null");
+        }
+
+        return pffCheckPermission(permission, Binder.getCallingPid(),
+                Binder.getCallingUid());
+    }
+
+    public int pffCheckPermission(String permission, int pid, int uid) {
+        if (permission == null) {
+            throw new IllegalArgumentException("permission is null");
+        }
+
+        if (!Process.supportsProcesses()) {
+            return PackageManager.PERMISSION_GRANTED;
+        }
+        try {
+            return ActivityManagerNative.getDefault().pffCheckPermission(
+                    permission, pid, uid);
+        } catch (RemoteException e) {
+            return PackageManager.PERMISSION_DENIED;
+        }
+    }
+
 }

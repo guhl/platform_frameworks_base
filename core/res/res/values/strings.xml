@@ -4112,4 +4112,28 @@
     <!-- Message informing user that the requested activity could not be found [CHAR LIMIT=none] -->
     <string name="app_not_found">No application found to handle this action</string>
     <string name="revoke">Revoke</string>
+
+    <!-- label for item that reboots the phone in phone options dialog -->
+    <string name="global_action_reboot">Reboot</string>
+
+    <!-- label for item that opens the profile choosing dialog -->
+    <string name="global_action_choose_profile">Profile</string>
+
+    <!-- Hardware Rotation lock string -->
+    <string name="toast_rotation_unlocked">Display rotation unlocked</string>
+    <string name="toast_rotation_locked">Display rotation locked</string>
+
+    <!-- Guhl: privacy framework -->
+    <!-- Title of an application permission that lets an application view/edit revoked permissions. -->    
+    <string name="permlab_revokePermissions">Allows view and edit of revoked permissions. Not for use by normal applications.</string>
+    <!-- Description of an application permission that lets lets an application view/edit revoked permissions. -->
+    <string name="permdesc_revokePermissions">Allows read and write for revoked permissions. Not for use by normal applications.</string>    
+    <!-- Title of an application permission that lets an access the pff. -->
+    <string name="permlab_pffFrequency">Allows access to the real permission state i.e. GRANTED, REVOKED or SPOOFED.</string>
+    <!-- Description of an application permission that lets lets an application view/edit revoked permissions. -->
+    <string name="permdesc_pffFrequency">Allows access to the real permission state i.e. GRANTED, REVOKED or SPOOFED.</string>
+    <string name="spoof">Spoof</string>
+    <string name="grant">Grant</string>
+    <!-- Guhl: end privacy framework -->
+	
 </resources>

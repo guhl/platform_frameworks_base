@@ -25,6 +25,8 @@ class GrantedPermissions {
 
     HashSet<String> grantedPermissions = new HashSet<String>();
 
+    HashSet<String> spoofedPermissions = new HashSet<String>();
+    
     int[] gids;
 
     GrantedPermissions(int pkgFlags) {
@@ -35,7 +37,8 @@ class GrantedPermissions {
     GrantedPermissions(GrantedPermissions base) {
         pkgFlags = base.pkgFlags;
         grantedPermissions = (HashSet<String>) base.grantedPermissions.clone();
-
+        spoofedPermissions = (HashSet<String>) base.spoofedPermissions.clone();
+        
         if (base.gids != null) {
             gids = base.gids.clone();
         }

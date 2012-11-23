@@ -715,6 +715,24 @@ public class BroadcastQueue {
                             + " (uid " + r.callingUid + ")");
                     skip = true;
                 }
+
+                try {
+                    perm = AppGlobals.getPackageManager().
+                            pffCheckPermission(r.requiredPermission,
+                                    info.activityInfo.applicationInfo.packageName);
+                } catch (RemoteException e) {
+                    perm = PackageManager.PERMISSION_DENIED;
+                }
+                if (perm != PackageManager.PERMISSION_GRANTED) {
+                    Slog.w(TAG, "Permission Denial: receiving "
+                            + r.intent + " to "
+                            + info.activityInfo.applicationInfo.packageName
+                            + " requires " + r.requiredPermission
+                            + " due to sender " + r.callerPackage
+                            + " (uid " + r.callingUid + ")");
+                    skip = true;
+                }
+                
             }
             if (r.appOp != AppOpsManager.OP_NONE) {
                 int mode = mService.mAppOpsService.checkOperation(r.appOp,

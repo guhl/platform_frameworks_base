@@ -1309,6 +1309,25 @@ final class ApplicationPackageManager extends PackageManager {
         return null;
     }
 
+    @Override
+    public String[] getSpoofedPermissions(String packageName) {
+        try {
+            return mPM.getSpoofedPermissions(packageName);
+        } catch (RemoteException e) {
+            // Should never happen!
+        }
+        return new String[0];
+    }
+
+    @Override
+    public void setSpoofedPermissions(String packageName, String[] perms) {
+        try {
+            mPM.setSpoofedPermissions(packageName, perms);
+        } catch (RemoteException e) {
+            // Should never happen!
+        }
+    }
+    
     private final ContextImpl mContext;
     private final IPackageManager mPM;
 

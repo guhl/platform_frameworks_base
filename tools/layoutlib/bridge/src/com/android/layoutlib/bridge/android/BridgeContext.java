@@ -1406,4 +1406,14 @@ public final class BridgeContext extends Context {
     public int getUserId() {
         return 0; // not used
     }
+
+    public int pffEnforceCallingOrSelfPermission(String permission, String message) {
+    	return 0;
+	}
+
+    @Override
+    public int pffCheckCallingOrSelfPermission(String permission) {
+		return 0;
+	} 
+
 }
