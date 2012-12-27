@@ -293,25 +293,27 @@ public class AppSecurityPermissions extends AppSecurityPermissionsBase {
             ImageView permGrpIcon = (ImageView) findViewById(R.id.perm_icon);
             TextView permNameView = (TextView) findViewById(R.id.perm_name);
             Switch spoofSwitch = (Switch) findViewById(R.id.spoof_button);
-            spoofSwitch.setText("Spoof");
-            spoofSwitch.setTag(perm);
-            spoofSwitch.setOnCheckedChangeListener(mEditableChangeListener);
-            if (mSpoofablePerms.contains(perm.name)) {
-                Log.i(TAG, "pff: PermissionItemView.setPermission perm.name=" + 
-                		perm.name + " spoofable");            	
-            } else {
-                Log.i(TAG, "pff: PermissionItemView.setPermission perm.name=" + 
-                		perm.name + " not spoofable");            	            	
-            }
-            spoofSwitch.setVisibility(mSpoofablePerms.contains(perm.name) ? View.VISIBLE : View.GONE);
-            if (mSpoofedPerms.contains(perm.name)) {
-                Log.i(TAG, "pff: PermissionItemView.setPermission perm.name=" + 
-                		perm.name + " spoofed");            	
-                spoofSwitch.setChecked(true);
-            } else {
-                Log.i(TAG, "pff: PermissionItemView.setPermission perm.name=" + 
-                		perm.name + " not spoofed");            	            	
-                spoofSwitch.setChecked(false);
+            if (null != spoofSwitch){
+	            spoofSwitch.setText("Spoof");
+	            spoofSwitch.setTag(perm);
+	            spoofSwitch.setOnCheckedChangeListener(mEditableChangeListener);
+	            if (mSpoofablePerms.contains(perm.name)) {
+	                Log.i(TAG, "pff: PermissionItemView.setPermission perm.name=" + 
+	                		perm.name + " spoofable");            	
+	            } else {
+	                Log.i(TAG, "pff: PermissionItemView.setPermission perm.name=" + 
+	                		perm.name + " not spoofable");            	            	
+	            }
+	            spoofSwitch.setVisibility(mSpoofablePerms.contains(perm.name) ? View.VISIBLE : View.GONE);
+	            if (mSpoofedPerms.contains(perm.name)) {
+	                Log.i(TAG, "pff: PermissionItemView.setPermission perm.name=" + 
+	                		perm.name + " spoofed");            	
+	                spoofSwitch.setChecked(true);
+	            } else {
+	                Log.i(TAG, "pff: PermissionItemView.setPermission perm.name=" + 
+	                		perm.name + " not spoofed");            	            	
+	                spoofSwitch.setChecked(false);
+	            }
             }
             Drawable icon = null;
             if (first) {
@@ -450,7 +452,7 @@ public class AppSecurityPermissions extends AppSecurityPermissionsBase {
         mPermsList.addAll(permSet);
         for(MyPermissionInfo tmpInfo : permSet) {
         	MyPermissionInfo myPerm = new MyPermissionInfo(tmpInfo);
-        	Log.i(TAG, "AppSecurityPermissions(Context context, String packageName) - myPerm.packageName="+myPerm.packageName);
+        	Log.i(TAG, "AppSecurityPermissions(Context context, String packageName) - myPerm.name="+myPerm.name+", setting myPerm.packageName="+packageName);
         	myPerm.packageName = packageName;
             mPermsList.add(myPerm);
         }
