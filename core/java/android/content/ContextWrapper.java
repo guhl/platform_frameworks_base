@@ -675,6 +675,13 @@ public class ContextWrapper extends Context {
      * @hide
      */
     @Override
+    public int pffEnforceCallingPermission(String permission, String message, int pid, int uid) {
+        return mBase.pffEnforceCallingPermission(permission, message, pid, uid);    	
+    }
+    /**
+     * @hide
+     */
+    @Override
     public int pffEnforceCallingOrSelfPermission(String permission, String message) {
         return mBase.pffEnforceCallingOrSelfPermission(permission, message);
     }
