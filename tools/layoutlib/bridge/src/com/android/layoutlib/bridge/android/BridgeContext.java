@@ -1407,13 +1407,17 @@ public final class BridgeContext extends Context {
         return 0; // not used
     }
 
+    public int pffEnforceCallingPermission(String permission, String message, int pid, int uid) {
+    	return 0;
+    }
+    
     public int pffEnforceCallingOrSelfPermission(String permission, String message) {
     	return 0;
-	}
+    }
 
     @Override
     public int pffCheckCallingOrSelfPermission(String permission) {
-		return 0;
-	} 
+	return 0;
+    } 
 
 }

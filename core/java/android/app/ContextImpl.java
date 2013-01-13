@@ -168,7 +168,8 @@ class ReceiverRestrictedContext extends ContextWrapper {
 class ContextImpl extends Context {
     private final static String TAG = "ContextImpl";
     private final static boolean DEBUG = false;
-
+    private final static boolean PFF_DEBUG = true;
+    
     private static final HashMap<String, SharedPreferencesImpl> sSharedPrefs =
             new HashMap<String, SharedPreferencesImpl>();
 
@@ -2062,6 +2063,16 @@ class ContextImpl extends Context {
         }
     }
 
+    public int pffEnforceCallingPermission(String permission, String message, int pid, int uid) {
+        int result = pffCheckPermission(permission, pid, uid);
+//        pffEnforce(permission,
+//                result,
+//                true,
+//                uid,
+//                message);
+        return result;    	
+    }
+    
     public int pffEnforceCallingOrSelfPermission(
             String permission, String message) {
         int result = pffCheckCallingOrSelfPermission(permission);
@@ -2084,16 +2095,21 @@ class ContextImpl extends Context {
 
     public int pffCheckPermission(String permission, int pid, int uid) {
         if (permission == null) {
+            if (PFF_DEBUG) {Log.i(TAG, "pffCheckPermission permission == null");}
             throw new IllegalArgumentException("permission is null");
         }
 
         if (!Process.supportsProcesses()) {
+            if (PFF_DEBUG) {Log.i(TAG, "pffCheckPermission Process.supportsProcesses()=false");}
             return PackageManager.PERMISSION_GRANTED;
         }
         try {
-            return ActivityManagerNative.getDefault().pffCheckPermission(
+            int res = ActivityManagerNative.getDefault().pffCheckPermission(
                     permission, pid, uid);
+            if (PFF_DEBUG) {Log.i(TAG, "pffCheckPermission for permission=" + permission +" uid=" + uid + " pid=" + pid + " returned="+res);}
+            return res;
         } catch (RemoteException e) {
+            if (PFF_DEBUG) {Log.i(TAG, "pffCheckPermission caught RemoteException e="+e.toString());}
             return PackageManager.PERMISSION_DENIED;
         }
     }

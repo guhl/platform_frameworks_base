@@ -582,6 +582,14 @@ public class MockContext extends Context {
 	* @hide
 	*/
     @Override
+    public int pffEnforceCallingPermission(String permission, String message, int pid, int uid) {
+    	throw new UnsupportedOperationException();
+    }
+
+    /**
+	* @hide
+	*/
+    @Override
     public int pffEnforceCallingOrSelfPermission(String permission, String message) {
     	throw new UnsupportedOperationException();
     }

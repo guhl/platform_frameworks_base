@@ -2763,6 +2763,26 @@ public abstract class Context {
         return false;
     }
     
+    
+    /**
+	* If neither you nor the calling process of an IPC you are
+	* handling has been granted a particular permission or the permission is
+	* revoked , throw a {@link SecurityException}. If the calling
+	* process or you have the permission spoofed.
+	* {@link PackageManager#PERMISSION_SPOOFED} is returned.
+	* If the permission is granted {@link PackageManager#PERMISSION_GRANTED}
+	* is returned.
+	*
+	* @param permission The name of the permission being checked.
+	* @param message A message to include in the exception if it is thrown.
+	* @param pid the process id for which the permission is checked.
+	* @param uid the process id for which the permission is checked.
+	*
+	* @see #pffCheckCallingOrSelfPermission(String)
+	* @hide
+	*/
+    public abstract int pffEnforceCallingPermission(String permission, String message, int pid, int uid);    
+
     /**
 	* If neither you nor the calling process of an IPC you are
 	* handling has been granted a particular permission or the permission is

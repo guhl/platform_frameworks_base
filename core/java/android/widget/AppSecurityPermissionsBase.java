@@ -9,4 +9,6 @@ public abstract class AppSecurityPermissionsBase {
     public abstract View getPermissionsView();
 
     public abstract int getPermissionCount();
+    
+    public abstract View getPermissionsViewWithRevokeButtons();
 }
