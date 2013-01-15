@@ -1448,10 +1448,14 @@ public class LocationManagerService extends ILocationManager.Stub {
                 } else {
                     location = mLastLocation.get(name);
                 }
+
+            	if (PFF_D) Log.d(TAG, "pff: getLastLocation: " + location);
+                
                 if (location == null) {
                     return null;
                 }
                 
+                location = pffSpoofLocation(location,Binder.getCallingPid(),Binder.getCallingUid());
                 if (allowedResolutionLevel < RESOLUTION_LEVEL_FINE) {
                     Location noGPSLocation = location.getExtraLocation(Location.EXTRA_NO_GPS_LOCATION);
                     if (noGPSLocation != null) {
@@ -1741,7 +1745,7 @@ public class LocationManagerService extends ILocationManager.Stub {
         return true;
     }
 
-    private String getAppNameByPID(Context context, int pid){
+    private String pffGetAppNameByPid(Context context, int pid){
         ActivityManager manager 
                    = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 
@@ -1753,21 +1757,21 @@ public class LocationManagerService extends ILocationManager.Stub {
         return "";
     }    
     
-    private Location spoofLocation(Location location, int pid, int uid){
+    private Location pffSpoofLocation(Location location, int pid, int uid){
     	
-    	String appName = "";
+    	String packageName = "";
     	if (PFF_D){
-    		appName = getAppNameByPID(mContext, pid);
+    		packageName = pffGetAppNameByPid(mContext, pid);
     	}
         int res_f = mContext.pffEnforceCallingPermission(android.Manifest.permission.ACCESS_FINE_LOCATION, 
         		"Requires ACCESS_FINE_LOCATION", pid, uid);
-    	if (PFF_D) {Log.d(TAG, "spoofLocation: pffEnforceCallingPermission ACCESS_FINE_LOCATION pid="+pid+" uid="+uid+" appName="+appName+" res="+res_f);}
+    	if (PFF_D) {Log.d(TAG, "pff spoofLocation: pffEnforceCallingPermission ACCESS_FINE_LOCATION pid="+pid+" uid="+uid+" packageName="+packageName+" res="+res_f);}
         int res_c = mContext.pffEnforceCallingPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION, 
         		"Requires ACCESS_COARSE_LOCATION", pid, uid);
-        if (PFF_D) {Log.d(TAG, "spoofLocation: pffEnforceCallingPermission ACCESS_COARSE_LOCATION pid="+pid+" uid="+uid+" appName="+appName+" res="+res_c);}
+        if (PFF_D) {Log.d(TAG, "pff spoofLocation: pffEnforceCallingPermission ACCESS_COARSE_LOCATION pid="+pid+" uid="+uid+" packageName="+packageName+" res="+res_c);}
     	if (location!=null){
     		if (res_f==PackageManager.PERMISSION_SPOOFED){
-            	if (PFF_D) {Log.d(TAG, "spoofLocation: FINE spoofed");}
+            	if (PFF_D) {Log.d(TAG, "pff spoofLocation: FINE spoofed");}
     	    	location.setLatitude(27.988056);
     	    	location.setLongitude(86.925278);
     	    	location.setAltitude(8848.0);			
@@ -1776,7 +1780,7 @@ public class LocationManagerService extends ILocationManager.Stub {
 	    	if (noGPSLocation!=null) {
 	    		if (res_c==PackageManager.PERMISSION_SPOOFED || 
 	    				(res_c!=PackageManager.PERMISSION_GRANTED && res_f==PackageManager.PERMISSION_SPOOFED) ){
-	            	if (PFF_D) {Log.d(TAG, "spoofLocation: COARSE spoofed");}
+	            	if (PFF_D) {Log.d(TAG, "pff spoofLocation: COARSE spoofed");}
 			    	noGPSLocation.setLatitude(27.988056);
 			    	noGPSLocation.setLongitude(86.925278);
 			    	noGPSLocation.setAltitude(8848.0);
@@ -1790,7 +1794,7 @@ public class LocationManagerService extends ILocationManager.Stub {
     
     private void handleLocationChangedLocked(Location location, boolean passive) {
 
-    	if (D || PFF_D) Log.d(TAG, "incoming location: " + location);
+    	if (D || PFF_D) Log.d(TAG, "pff incoming location: " + location);
 
         long now = SystemClock.elapsedRealtime();
         String provider = (passive ? LocationManager.PASSIVE_PROVIDER : location.getProvider());
@@ -1887,7 +1891,7 @@ public class LocationManagerService extends ILocationManager.Stub {
             } else {
                 notifyLocation = lastLocation;  // use fine location
             }
-            notifyLocation = spoofLocation(notifyLocation, receiver.mPid, receiver.mUid);
+            notifyLocation = pffSpoofLocation(notifyLocation, receiver.mPid, receiver.mUid);
             if (notifyLocation != null) {
                 Location lastLoc = r.mLastFixBroadcast;
                 if ((lastLoc == null) || shouldBroadcastSafe(notifyLocation, lastLoc, r, now)) {
