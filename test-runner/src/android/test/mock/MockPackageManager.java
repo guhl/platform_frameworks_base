@@ -46,7 +46,11 @@ import android.content.res.XmlResourceParser;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * A mock {@link android.content.pm.PackageManager} class.  All methods are non-functional and throw
@@ -609,6 +613,22 @@ public class MockPackageManager extends PackageManager {
         throw new UnsupportedOperationException();
     }
 
+
+    /**
+	* @hide
+	*/
+	@Override
+    public String[] getSpoofablePermissions() {
+		throw new UnsupportedOperationException();
+	}
+	
+    /**
+	* @hide
+	*/
+	@Override
+	public boolean isSpoofablePermission(final String perm)	 {
+		throw new UnsupportedOperationException();
+	}
     /**
 	* @hide
 	*/

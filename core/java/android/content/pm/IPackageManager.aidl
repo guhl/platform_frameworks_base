@@ -399,7 +399,11 @@ interface IPackageManager {
 
     /** Reflects current DeviceStorageMonitorService state */
     boolean isStorageLow();
+    
+    String[] getSpoofablePermissions();
 
+	boolean isSpoofablePermission(String perm);
+	
     String[] getSpoofedPermissions(String packageName);
 
     void setSpoofedPermissions(String packageName, in String[] perms);

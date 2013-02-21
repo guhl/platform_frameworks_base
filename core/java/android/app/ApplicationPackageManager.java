@@ -1310,6 +1310,25 @@ final class ApplicationPackageManager extends PackageManager {
     }
 
     @Override
+    public String[] getSpoofablePermissions() {
+        try {
+            return mPM.getSpoofablePermissions();
+        } catch (RemoteException e) {
+            // Should never happen!
+        }
+        return new String[0];    	
+    }
+    
+    @Override
+    public boolean isSpoofablePermission(String perm) {
+    	try {
+            return mPM.isSpoofablePermission(perm);
+        } catch (RemoteException e) {
+            // Should never happen!
+        }
+        return false;    	
+    }
+    @Override
     public String[] getSpoofedPermissions(String packageName) {
         try {
             return mPM.getSpoofedPermissions(packageName);

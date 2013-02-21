@@ -33,6 +33,7 @@ import android.util.AndroidException;
 import android.util.DisplayMetrics;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -3143,14 +3144,28 @@ public abstract class PackageManager {
     }
 
     /**
+     * Returns the spoofable permissions.
+     * <p>
+     *
+     */
+    public abstract String[] getSpoofablePermissions();    
+    
+    /**
+     * Returns if a permission is spoofable.
+     * <p>
+     *
+     * @param perm The permission that is to be checked
+     */
+    public abstract boolean isSpoofablePermission(final String perm);    
+
+    /**
      * Returns the spoofed permissions for given package.
      * <p>
      * NOTE: If the package has a shared uid then the spoofed permissions for that
      * 			  uid will be returned.
      *
-     * @param packageName Name of the package which revoked permissions are needed
+     * @param packageName Name of the package which spoofed permissions are needed
      */
-
     public abstract String[] getSpoofedPermissions(String packageName);
 
     /**
@@ -3159,7 +3174,7 @@ public abstract class PackageManager {
      * NOTE: If the package has a shared uid then this method will spoof the
      * 			  permissions for that shared uid.
      *
-     * @param packageName Name of the package which revoked permissions are needed
+     * @param packageName Name of the package which spoofed permissions are needed
      * @param perms the spoofed permissions.
      */
     public abstract void setSpoofedPermissions(String packageName, String[] perms);

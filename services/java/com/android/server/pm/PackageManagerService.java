@@ -31,6 +31,7 @@ import static libcore.io.OsConstants.S_IXGRP;
 import static libcore.io.OsConstants.S_IROTH;
 import static libcore.io.OsConstants.S_IXOTH;
 
+import com.android.internal.R;
 import com.android.internal.app.IMediaContainerService;
 import com.android.internal.app.ResolverActivity;
 import com.android.internal.content.NativeLibraryHelper;
@@ -185,6 +186,8 @@ public class PackageManagerService extends IPackageManager.Stub {
     private static final boolean DEBUG_PACKAGE_SCANNING = false;
     private static final boolean DEBUG_APP_DIR_OBSERVER = false;
     private static final boolean DEBUG_VERIFY = false;
+
+    private static final boolean DEBUG_PFF = false;
 
     private static final int RADIO_UID = Process.PHONE_UID;
     private static final int LOG_UID = Process.LOG_UID;
@@ -6368,8 +6371,83 @@ public class PackageManagerService extends IPackageManager.Stub {
         final Message msg = mHandler.obtainMessage(POST_INSTALL, token, 0);
         mHandler.sendMessage(msg);
     }
-
     
+    HashSet<String> mSpoofablePermissions = new HashSet<String>();
+    
+    /**
+     * PFF get the spoofable permissions
+     * @see android.content.pm.IPackageManager#getSpoofablePermissions()
+     */
+    public String[] getSpoofablePermissions() {
+        String[] result = null; 
+    	if (DEBUG_PFF) {Log.d(TAG, "pff: mSpoofablePermissions.size()="+mSpoofablePermissions.size());}
+        if (mSpoofablePermissions.size() == 0) {
+	    	HashSet<String> outPerms = new HashSet<String>();
+	        XmlPullParser parser = mContext.getResources().getXml(R.xml.spoofed_permissions);
+	        try {
+	            int type;
+	            while ((type=parser.next()) != XmlPullParser.START_TAG
+	                       && type != XmlPullParser.END_DOCUMENT) {
+	                ;
+	            }
+	            int outerDepth = parser.getDepth();
+	            while ((type=parser.next()) != XmlPullParser.END_DOCUMENT
+	                   && (type != XmlPullParser.END_TAG
+	                           || parser.getDepth() > outerDepth)) {
+	                if (type == XmlPullParser.END_TAG
+	                        || type == XmlPullParser.TEXT) {
+	                    continue;
+	                }
+	
+	                String tagName = parser.getName();
+	                if (tagName.equals("item")) {
+	                    String name = parser.getAttributeValue(null, "name");
+	                    if (name != null) {
+	                        outPerms.add(name.intern());
+	                    } else {
+	                        //reportSettingsProblem(Log.WARN,
+	                        // "Error in package manager settings: <perms> has"
+	                        // + " no name at " + parser.getPositionDescription());
+	                    }
+	                } else {
+	                    //reportSettingsProblem(Log.WARN,
+	                    // "Unknown element under <perms>: "
+	                    // + parser.getName());
+	                }
+	                XmlUtils.skipCurrentTag(parser);
+	            }
+	        } catch (XmlPullParserException e) {
+	            // TODO Auto-generated catch block
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            // TODO Auto-generated catch block
+	            e.printStackTrace();
+	        }
+	        mSpoofablePermissions = (HashSet<String>) outPerms.clone();
+        }   
+        result = new String[mSpoofablePermissions.size()];
+        mSpoofablePermissions.toArray(result);
+        return result;
+    }    
+
+    /**
+     * PFF check if a permission is spoofable
+     * @see android.content.pm.IPackageManager#getSpoofablePermissions()
+     */
+    public boolean isSpoofablePermission(final String perm) {
+        if (mSpoofablePermissions.size() == 0) {
+        	String[] spoofables = getSpoofablePermissions();
+        }
+        if (mSpoofablePermissions.contains(perm))
+        	return true;
+        else
+        	return false;
+    }
+    
+    /**
+     * PFF get the spoofed permissions for a package
+     * @see android.content.pm.IPackageManager#getSpoofablePermissions()
+     */
     public String[] getSpoofedPermissions(final String pkgName) {
 //        mContext.enforceCallingOrSelfPermission(
 //                android.Manifest.permission.REVOKE_PERMISSIONS, null);
@@ -6391,12 +6469,16 @@ public class PackageManagerService extends IPackageManager.Stub {
         return result;
     }
     
+    /**
+     * PFF set the spoofable permissions for a package
+     * @see android.content.pm.IPackageManager#getSpoofablePermissions()
+     */
     public void setSpoofedPermissions(final String pkgName, final String[] perms) {
 //        mContext.enforceCallingOrSelfPermission(
 //                android.Manifest.permission.REVOKE_PERMISSIONS, null);
         synchronized (mPackages) {
             final PackageParser.Package p = mPackages.get(pkgName);
-            if ((p.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+//            if ((p.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
                 if (p != null && p.mExtras != null) {
                     final PackageSetting ps = (PackageSetting)p.mExtras;
                     final GrantedPermissions gp = ps.sharedUser == null ? ps : ps.sharedUser;
@@ -6405,8 +6487,9 @@ public class PackageManagerService extends IPackageManager.Stub {
                     mSettings.writeLPr();
                 }
             }
-        }
+//        }
     }
+    
     /**
      * Get the verification agent timeout.
      *
@@ -11050,7 +11133,7 @@ public class PackageManagerService extends IPackageManager.Stub {
                     GrantedPermissions gp;
                     gp = ps.sharedUser != null ? ps.sharedUser : ps;
                     if (gp.spoofedPermissions.contains(permName)) {
-                    	Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckPermission: PERMISSION_SPOOFED");
+                    	if (DEBUG_PFF) {Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckPermission: PERMISSION_SPOOFED");}
                         return PackageManager.PERMISSION_SPOOFED;
                     }
 /* Guhl: revoke disabled for now
@@ -11059,15 +11142,16 @@ public class PackageManagerService extends IPackageManager.Stub {
                     }
 */                    
                     else if (gp.grantedPermissions.contains(permName)) {
-                    	Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckPermission: PERMISSION_SPOOFED");
+                    	if (DEBUG_PFF) {Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckPermission: PERMISSION_GRANTED");}
                         return PackageManager.PERMISSION_GRANTED;
                     }
                 }
             }
             else {
-                checkPermission(permName, pkgName);
+                return checkPermission(permName, pkgName);
             }
         }
+        if (DEBUG_PFF) {Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckPermission: PERMISSION_DENIED");}
         return PackageManager.PERMISSION_DENIED;
     }
 
@@ -11080,7 +11164,7 @@ public class PackageManagerService extends IPackageManager.Stub {
                 if (obj != null) {
                     GrantedPermissions gp = (GrantedPermissions)obj;
                     if (gp.spoofedPermissions.contains(permName)) {
-                    	Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckUidPermission: PERMISSION_SPOOFED");
+                    	if (DEBUG_PFF) {Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckUidPermission: PERMISSION_SPOOFED");}
                         return PackageManager.PERMISSION_SPOOFED;
                     }
 /* Guhl: revoke disabled for now
@@ -11089,13 +11173,13 @@ public class PackageManagerService extends IPackageManager.Stub {
                     }
 */                    
                     else if (gp.grantedPermissions.contains(permName)) {
-                    	Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckUidPermission: PERMISSION_GRANTED");
+                    	if (DEBUG_PFF) {Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckUidPermission: PERMISSION_GRANTED");}
                         return PackageManager.PERMISSION_GRANTED;
                     }
                 } else {
                     HashSet<String> perms = mSystemPermissions.get(uid);
                     if (perms != null && perms.contains(permName)) {
-                    	Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckUidPermission: PERMISSION_GRANTED");
+                    	if (DEBUG_PFF) {Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckUidPermission: PERMISSION_GRANTED");}
                         return PackageManager.PERMISSION_GRANTED;
                     }
                 }
@@ -11104,7 +11188,7 @@ public class PackageManagerService extends IPackageManager.Stub {
                 return checkUidPermission(permName, uid);
             }
         }
-    	Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckUidPermission: PERMISSION_DENIED");
+        if (DEBUG_PFF) {Log.d(LOG_TAG, "VM: PackageManagerService.pffCheckUidPermission: PERMISSION_DENIED");}
         return PackageManager.PERMISSION_DENIED;
     }
     

@@ -218,62 +218,13 @@ public class AppSecurityPermissions extends AppSecurityPermissionsBase {
             super(context, attrs);
             setClickable(true);
 
-            mPm = getContext().getPackageManager();
-
             mSpoofablePerms = new HashSet<String>();
-            try {
-                readSpoofedPerms(mSpoofablePerms);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (XmlPullParserException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            mPm = getContext().getPackageManager();
+        	String[] spoofable = mPm.getSpoofablePermissions();
+        	mSpoofablePerms.addAll(Arrays.asList(spoofable));
+
         }
 
-        private void readSpoofedPerms(HashSet<String> outPerms) throws IOException, XmlPullParserException {
-            XmlPullParser parser = mContext.getResources().getXml(R.xml.spoofed_permissions);
-            try {
-                int type;
-                while ((type=parser.next()) != XmlPullParser.START_TAG
-                           && type != XmlPullParser.END_DOCUMENT) {
-                    ;
-                }
-                int outerDepth = parser.getDepth();
-                while ((type=parser.next()) != XmlPullParser.END_DOCUMENT
-                       && (type != XmlPullParser.END_TAG
-                               || parser.getDepth() > outerDepth)) {
-                    if (type == XmlPullParser.END_TAG
-                            || type == XmlPullParser.TEXT) {
-                        continue;
-                    }
-
-                    String tagName = parser.getName();
-                    if (tagName.equals("item")) {
-                        String name = parser.getAttributeValue(null, "name");
-                        if (name != null) {
-                            outPerms.add(name.intern());
-                        } else {
-                            //reportSettingsProblem(Log.WARN,
-                            //        "Error in package manager settings: <perms> has"
-                            //           + " no name at " + parser.getPositionDescription());
-                        }
-                    } else {
-                        //reportSettingsProblem(Log.WARN,
-                        //        "Unknown element under <perms>: "
-                        //        + parser.getName());
-                    }
-                    XmlUtils.skipCurrentTag(parser);
-                }
-            } catch (XmlPullParserException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
                 
         public void setPermission(MyPermissionGroupInfo grp, MyPermissionInfo perm,
                 boolean first, CharSequence newPermPrefix, String packageName,
