@@ -49,7 +49,11 @@ import android.os.Binder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * A mock {@link android.content.pm.PackageManager} class.  All methods are non-functional and throw
@@ -647,6 +651,22 @@ public class MockPackageManager extends PackageManager {
         throw new UnsupportedOperationException();
     }
 
+
+    /**
+	* @hide
+	*/
+	@Override
+    public String[] getSpoofablePermissions() {
+		throw new UnsupportedOperationException();
+	}
+	
+    /**
+	* @hide
+	*/
+	@Override
+	public boolean isSpoofablePermission(final String perm)	 {
+		throw new UnsupportedOperationException();
+	}
     /**
 	* @hide
 	*/

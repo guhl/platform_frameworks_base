@@ -417,16 +417,16 @@ interface IPackageManager {
 
     /** Reflects current DeviceStorageMonitorService state */
     boolean isStorageLow();
+    
+    String[] getSpoofablePermissions();
 
     boolean setApplicationBlockedSettingAsUser(String packageName, boolean blocked, int userId);
     boolean getApplicationBlockedSettingAsUser(String packageName, int userId);
 
+    boolean isSpoofablePermission(String perm);
     String[] getSpoofedPermissions(String packageName);
-
     void setSpoofedPermissions(String packageName, in String[] perms);
-
     int pffCheckPermission(String permName, String pkgName);
-
     int pffCheckUidPermission(String pkgName, int uid);
     
 }
