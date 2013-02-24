@@ -35,6 +35,8 @@ import android.os.OperationCanceledException;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.os.UserHandle;
+import android.provider.CalendarContract;
+import android.text.format.Time;
 import android.util.Log;
 
 import java.io.File;
@@ -181,7 +183,7 @@ public abstract class ContentProvider implements ComponentCallbacks2 {
         int mWriteOp = AppOpsManager.OP_NONE;
 
         static final String PFF_LOG_TAG = "PFF_CONTENT_PROVIDER_TRANSPORT";
-    	static final int pff_dbg_level = 1;
+    	static final int pff_dbg_level = 3;
         
         ContentProvider getContentProvider() {
             return ContentProvider.this;
@@ -225,12 +227,25 @@ public abstract class ContentProvider implements ComponentCallbacks2 {
 	                                                              ", getSchemeSpecificPart()"+uri.getSchemeSpecificPart()+
 	                                                              ", getQuery()"+uri.getQuery()+
 	                                                              ", limit="+limit);}	  
-	                    if (limit!=null){
-	                        builder.clearQuery();
-	                        if (pff_dbg_level>=3) {Log.d(PFF_LOG_TAG, "query: builder.clearQuery() -> builder.build()="+builder.build());}
-	                    }
-                            builder.appendQueryParameter("limit", String.valueOf(0));
-	                    uri=builder.build();
+	                    if (authority.equals(CalendarContract.AUTHORITY)){
+		                if (pff_dbg_level>=3) {Log.d(PFF_LOG_TAG, "query: authority.equals(CalendarContract.AUTHORITY)");}
+			            if (path.contains("/instances")){
+			                Uri.Builder builder = CalendarContract.Instances.CONTENT_URI.buildUpon();
+                                        int JD = Time.getJulianMondayFromWeeksSinceEpoch(1);
+                                        ContentUris.appendId(builder, JD);
+                                        ContentUris.appendId(builder, JD);
+                                        uri=builder.build();
+                                    }
+                                } else {
+                                    Uri.Builder builder = uri.buildUpon();
+                                    if (limit!=null){
+                                        builder.clearQuery();
+                                        if (pff_dbg_level>=3) {Log.d(PFF_LOG_TAG, "query: builder.clearQuery() -> builder.build()="+builder.build());}
+                                    }
+                                    builder.appendQueryParameter("limit", String.valueOf(0));
+                                    uri=builder.build();
+                               }
+                            }
 	                    if (pff_dbg_level>=2) {Log.d(PFF_LOG_TAG, "query: uri is: "+uri);}
 	                }
                     }
@@ -438,12 +453,11 @@ public abstract class ContentProvider implements ComponentCallbacks2 {
             return AppOpsManager.MODE_ALLOWED;
         }
 
-<<<<<<< HEAD
         private int enforceWritePermission(String callingPkg, Uri uri) throws SecurityException {
             enforceWritePermissionInner(uri);
             if (mWriteOp != AppOpsManager.OP_NONE) {
                 return mAppOpsManager.noteOp(mWriteOp, Binder.getCallingUid(), callingPkg);
-=======
+
         private void enforceReadPermissionInner(Uri uri) throws SecurityException {
             final Context context = getContext();
             final int pid = Binder.getCallingPid();
@@ -453,7 +467,6 @@ public abstract class ContentProvider implements ComponentCallbacks2 {
 
             if (UserHandle.isSameApp(uid, mMyUid)) {
                 return;
->>>>>>> 1468e7a... pff: permission spoofing - contacts and phone log
             }
             return AppOpsManager.MODE_ALLOWED;
         }
