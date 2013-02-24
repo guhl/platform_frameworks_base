@@ -38,6 +38,8 @@ import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.provider.CalendarContract;
+import android.text.format.Time;
 import android.util.Log;
 
 import java.io.File;
@@ -182,7 +184,7 @@ public abstract class ContentProvider implements ComponentCallbacks2 {
         int mWriteOp = AppOpsManager.OP_NONE;
 
         static final String PFF_LOG_TAG = "PFF_CONTENT_PROVIDER_TRANSPORT";
-    	static final int pff_dbg_level = 1;
+    	static final int pff_dbg_level = 3;
         
         ContentProvider getContentProvider() {
             return ContentProvider.this;
@@ -215,21 +217,32 @@ public abstract class ContentProvider implements ComponentCallbacks2 {
 	    			if (res == PackageManager.PERMISSION_SPOOFED){
 	        			if (pff_dbg_level>=1) {Log.d(PFF_LOG_TAG, "query: permission "+componentPerm+" spoofed!");}
 	        			if (pff_dbg_level>=2) {Log.d(PFF_LOG_TAG, "query: uri was: "+uri);}
-	        			Uri.Builder builder = uri.buildUpon();
 	        			String limit = uri.getQueryParameter("limit");
 	        			String authority = uri.getAuthority();
 	        			if (pff_dbg_level>=3) {Log.d(PFF_LOG_TAG, "query: uri, path="+path+
-	        					                                            ", authority="+authority+
-	        					                                            ", getScheme()"+uri.getScheme()+
-	        					                                            ", getSchemeSpecificPart()"+uri.getSchemeSpecificPart()+
-	        					                                            ", getQuery()"+uri.getQuery()+
-	        					                                            ", limit="+limit);}	  
-	        			if (limit!=null){
-	        				builder.clearQuery();
-		        			if (pff_dbg_level>=3) {Log.d(PFF_LOG_TAG, "query: builder.clearQuery() -> builder.build()="+builder.build());}
+                                ", authority="+authority+
+                                ", getScheme()"+uri.getScheme()+
+                                ", getSchemeSpecificPart()"+uri.getSchemeSpecificPart()+
+                                ", getQuery()"+uri.getQuery()+
+                                ", limit="+limit);}	  
+	        			if (authority.equals(CalendarContract.AUTHORITY)){
+		        			if (pff_dbg_level>=3) {Log.d(PFF_LOG_TAG, "query: authority.equals(CalendarContract.AUTHORITY)");}
+			        			if (path.contains("/instances")){
+			        			Uri.Builder builder = CalendarContract.Instances.CONTENT_URI.buildUpon();
+			        			int JD = Time.getJulianMondayFromWeeksSinceEpoch(1);
+		        				ContentUris.appendId(builder, JD);
+		        				ContentUris.appendId(builder, JD);
+			        			uri=builder.build();
+		        			}
+	        			} else {
+		        			Uri.Builder builder = uri.buildUpon();
+		        			if (limit!=null){
+		        				builder.clearQuery();
+			        			if (pff_dbg_level>=3) {Log.d(PFF_LOG_TAG, "query: builder.clearQuery() -> builder.build()="+builder.build());}
+		        			}
+	        				builder.appendQueryParameter("limit", String.valueOf(0));
+		        			uri=builder.build();
 	        			}
-        				builder.appendQueryParameter("limit", String.valueOf(0));
-	        			uri=builder.build();
 	        			if (pff_dbg_level>=2) {Log.d(PFF_LOG_TAG, "query: uri is: "+uri);}
 	        		}
         		}
