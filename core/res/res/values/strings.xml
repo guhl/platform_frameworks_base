@@ -4532,6 +4532,18 @@
     <string name="permdesc_pffFrequency">Allows access to the real permission state i.e. GRANTED, REVOKED or SPOOFED.</string>
     <string name="spoof">Spoof</string>
     <string name="grant">Grant</string>
+
+    <!-- Button allowing the user reset the revoked permissions for application which has encountered an error. -->
+    <string name="reset_perms">Reset permissions</string>
+    <!-- Title of the alert when an application is not responding. -->
+    <string name="aerr_revoked_application">The application <xliff:g id="application">%1$s</xliff:g>
+    	(process <xliff:g id="process">%2$s</xliff:g>) has stopped unexpectedly.\nWARNING!\nThis application has one or more of its permissions 
+    	REVOKED which may couse it to malfunction. Please grant its permissions and try again.</string>
+    <!-- Text of the alert that is displayed when an application has crashed. -->
+    <string name="aerr_revoked_process">The process <xliff:g id="process">%1$s</xliff:g> has
+    	stopped unexpectedly.\nWARINIG!\nThis process has one or more of its permissions 
+    	REVOKED which may couse it to malfunction. Please grant its permissions and try again.</string>    
+
     <!-- Guhl: end privacy framework -->
 	
 </resources>

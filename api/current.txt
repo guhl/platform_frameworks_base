@@ -7243,6 +7243,7 @@ package android.content.pm {
     method public abstract android.content.res.Resources getResourcesForActivity(android.content.ComponentName) throws android.content.pm.PackageManager.NameNotFoundException;
     method public abstract android.content.res.Resources getResourcesForApplication(android.content.pm.ApplicationInfo) throws android.content.pm.PackageManager.NameNotFoundException;
     method public abstract android.content.res.Resources getResourcesForApplication(java.lang.String) throws android.content.pm.PackageManager.NameNotFoundException;
+    method public abstract java.lang.String[] getRevokeablePermissions();
     method public abstract android.content.pm.ServiceInfo getServiceInfo(android.content.ComponentName, int) throws android.content.pm.PackageManager.NameNotFoundException;
     method public abstract java.lang.String[] getSpoofedPermissions(java.lang.String);
     method public abstract android.content.pm.FeatureInfo[] getSystemAvailableFeatures();
@@ -7250,6 +7251,7 @@ package android.content.pm {
     method public abstract java.lang.CharSequence getText(java.lang.String, int, android.content.pm.ApplicationInfo);
     method public abstract android.content.res.XmlResourceParser getXml(java.lang.String, int, android.content.pm.ApplicationInfo);
     method public abstract boolean hasSystemFeature(java.lang.String);
+    method public abstract boolean isRevokeablePermission(java.lang.String);
     method public abstract boolean isSafeMode();
     method public abstract java.util.List<android.content.pm.ResolveInfo> queryBroadcastReceivers(android.content.Intent, int);
     method public abstract java.util.List<android.content.pm.ProviderInfo> queryContentProviders(java.lang.String, int, int);
@@ -24091,6 +24093,7 @@ package android.test.mock {
     method public android.content.res.Resources getResourcesForActivity(android.content.ComponentName) throws android.content.pm.PackageManager.NameNotFoundException;
     method public android.content.res.Resources getResourcesForApplication(android.content.pm.ApplicationInfo);
     method public android.content.res.Resources getResourcesForApplication(java.lang.String) throws android.content.pm.PackageManager.NameNotFoundException;
+    method public java.lang.String[] getRevokeablePermissions();
     method public android.content.pm.ServiceInfo getServiceInfo(android.content.ComponentName, int) throws android.content.pm.PackageManager.NameNotFoundException;
     method public java.lang.String[] getSpoofedPermissions(java.lang.String);
     method public android.content.pm.FeatureInfo[] getSystemAvailableFeatures();
@@ -24098,6 +24101,7 @@ package android.test.mock {
     method public java.lang.CharSequence getText(java.lang.String, int, android.content.pm.ApplicationInfo);
     method public android.content.res.XmlResourceParser getXml(java.lang.String, int, android.content.pm.ApplicationInfo);
     method public boolean hasSystemFeature(java.lang.String);
+    method public boolean isRevokeablePermission(java.lang.String);
     method public boolean isSafeMode();
     method public java.util.List<android.content.pm.ResolveInfo> queryBroadcastReceivers(android.content.Intent, int);
     method public java.util.List<android.content.pm.ProviderInfo> queryContentProviders(java.lang.String, int, int);

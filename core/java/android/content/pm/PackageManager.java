@@ -3270,4 +3270,42 @@ public abstract class PackageManager {
      */
     public abstract void setSpoofedPermissions(String packageName, String[] perms);
     
+    /**
+     * Returns the spoofable permissions.
+     * <p>
+     *
+     */
+    public abstract String[] getRevokeablePermissions();    
+    
+    /**
+     * Returns if a permission is spoofable.
+     * <p>
+     *
+     * @param perm The permission that is to be checked
+     */
+    public abstract boolean isRevokeablePermission(final String perm);    
+
+    /**	
+     * Returns the revoked permissions for given package.
+     * <p>
+     * NOTE: If the package has a shared uid then the revoked permissions for that
+     * »        »       »         uid will be returned.
+     *
+     * @param packageName Name of the package which revoked permissions are needed
+     * @hide
+     */
+    public abstract String[] getRevokedPermissions(String packageName);
+    
+    /**
+     * Sets the revoked permissions for given package.
+     * <p>
+     * NOTE: If the package has a shared uid then this method will revoke the
+     * »        »       »         permissions for that shared uid.
+     *
+     * @param packageName Name of the package which revoked permissions are needed
+     * @param the revoked permissions.
+     * @hide
+     */
+    public abstract void setRevokedPermissions(String packageName, String[] perms);
+
 }

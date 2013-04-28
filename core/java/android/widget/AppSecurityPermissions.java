@@ -157,6 +157,8 @@ public class AppSecurityPermissions extends AppSecurityPermissionsBase {
 
         private HashSet<String> mSpoofedPerms;
         private HashSet<String> mSpoofablePerms;
+        private HashSet<String> mRevokedPerms;
+        private HashSet<String> mRevokeablePerms;
                 
         private EditableChangeListener mEditableChangeListener = new EditableChangeListener();
 
@@ -177,6 +179,13 @@ public class AppSecurityPermissions extends AppSecurityPermissionsBase {
                 	else
                 		unspoofPerm(perm);
                     break;
+                case R.id.revoke_button:
+                	on = ((android.widget.Switch) buttonView).isChecked();
+                	if (on)
+                		revokePerm(perm);
+                	else
+                		grantPerm(perm);
+                    break;                	
                 }       	
             }
                     
@@ -195,6 +204,24 @@ public class AppSecurityPermissions extends AppSecurityPermissionsBase {
                 if (mSpoofedPerms.contains(perm.name)) {
                     pm.setSpoofedPermissions(perm.packageName,
                             removePermFromList(mSpoofedPerms, perm));
+                }
+            }
+            
+            private void revokePerm(final MyPermissionInfo perm) {
+                PackageManager pm = getContext().getPackageManager();
+                Log.i(TAG, "revokePerm: perm.name="+perm.name+" PackageName="+perm.packageName);
+                if (!mRevokedPerms.contains(perm.name)) {
+                	pm.setRevokedPermissions(perm.packageName,
+                            addPermToList(mRevokedPerms, perm));
+                }
+            }
+
+            private void grantPerm(final MyPermissionInfo perm) {
+                PackageManager pm = getContext().getPackageManager();
+                Log.i(TAG, "grantPerm: perm.name="+perm.name+" PackageName="+perm.packageName);
+                if (mRevokedPerms.contains(perm.name)) {
+                    pm.setRevokedPermissions(perm.packageName,
+                            removePermFromList(mRevokedPerms, perm));
                 }
             }
             
@@ -223,6 +250,11 @@ public class AppSecurityPermissions extends AppSecurityPermissionsBase {
         	String[] spoofable = mPm.getSpoofablePermissions();
         	mSpoofablePerms.addAll(Arrays.asList(spoofable));
 
+        	mRevokeablePerms = new HashSet<String>();
+            mPm = getContext().getPackageManager();
+        	String[] revokeable = mPm.getRevokeablePermissions();
+        	mRevokeablePerms.addAll(Arrays.asList(revokeable));
+
         }
 
                 
@@ -237,6 +269,9 @@ public class AppSecurityPermissions extends AppSecurityPermissionsBase {
             mSpoofedPerms = new HashSet<String>();
         	String[] spoofed = mPm.getSpoofedPermissions(perm.packageName);
             mSpoofedPerms.addAll(Arrays.asList(spoofed));
+            mRevokedPerms = new HashSet<String>();
+        	String[] revoked = mPm.getRevokedPermissions(perm.packageName);
+            mRevokedPerms.addAll(Arrays.asList(revoked));
             
             Log.i(TAG, "pff: PermissionItemView.setPermission perm.name=" + 
             		perm.name + " packageName="+perm.packageName);
@@ -266,6 +301,31 @@ public class AppSecurityPermissions extends AppSecurityPermissionsBase {
 	                spoofSwitch.setChecked(false);
 	            }
             }
+
+            Switch revokeSwitch = (Switch) findViewById(R.id.revoke_button);
+            if (null != revokeSwitch){
+            	revokeSwitch.setText("Revoke");
+            	revokeSwitch.setTag(perm);
+            	revokeSwitch.setOnCheckedChangeListener(mEditableChangeListener);
+	            if (mRevokeablePerms.contains(perm.name)) {
+	                Log.i(TAG, "pff: PermissionItemView.setPermission perm.name=" + 
+	                		perm.name + " revokeable");            	
+	            } else {
+	                Log.i(TAG, "pff: PermissionItemView.setPermission perm.name=" + 
+	                		perm.name + " not revokeable");            	            	
+	            }
+	            revokeSwitch.setVisibility(mRevokeablePerms.contains(perm.name) ? View.VISIBLE : View.GONE);
+	            if (mRevokedPerms.contains(perm.name)) {
+	                Log.i(TAG, "pff: PermissionItemView.setPermission perm.name=" + 
+	                		perm.name + " revoked");            	
+	                revokeSwitch.setChecked(true);
+	            } else {
+	                Log.i(TAG, "pff: PermissionItemView.setPermission perm.name=" + 
+	                		perm.name + " not revoked");            	            	
+	                revokeSwitch.setChecked(false);
+	            }
+            }
+            
             Drawable icon = null;
             if (first) {
                 icon = grp.loadGroupIcon(mPm);

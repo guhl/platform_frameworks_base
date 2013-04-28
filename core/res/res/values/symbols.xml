@@ -1760,8 +1760,14 @@
 
   <!-- Guhl: privacy framework -->
   <java-symbol type="xml" name="spoofed_permissions" />
+  <java-symbol type="xml" name="revoked_permissions" />
   <java-symbol type="bool" name="config_enablePermissionsManagement" />
   <java-symbol type="id" name="spoof_button" />
+  <java-symbol type="id" name="revoke_button" />
+  <java-symbol type="string" name="aerr_revoked_application" />
+  <java-symbol type="string" name="aerr_revoked_process" />
+  <java-symbol type="string" name="reset_perms" />
+  
   <!-- Guhl: end privacy framework -->
   
 </resources>
