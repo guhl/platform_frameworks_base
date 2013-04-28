@@ -412,4 +412,12 @@ interface IPackageManager {
 
     int pffCheckUidPermission(String pkgName, int uid);
     
+    String[] getRevokeablePermissions();
+
+	boolean isRevokeablePermission(String perm);
+
+    String[] getRevokedPermissions(String packageName);
+    
+    void setRevokedPermissions(String packageName, in String[] perms);
+    
 }
