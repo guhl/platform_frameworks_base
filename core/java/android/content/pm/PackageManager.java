@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.content.pff.LocationBean;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.graphics.drawable.Drawable;
@@ -3212,9 +3213,24 @@ public abstract class PackageManager {
      * »        »       »         permissions for that shared uid.
      *
      * @param packageName Name of the package which revoked permissions are needed
-     * @param the revoked permissions.
+     * @param perms the revoked permissions.
      * @hide
      */
     public abstract void setRevokedPermissions(String packageName, String[] perms);
 
+    /**
+     * Returns the current Location that will be used for spoofing.
+     * <p>
+     *
+    */
+    public abstract LocationBean pffGetLocation();
+    
+    /**
+     * Sets the current Location that will be used for spoofing.
+     * <p>
+     * @param loc the revoked permissions.
+     *
+    */
+    public abstract void pffSetLocation(LocationBean loc);
+    
 }

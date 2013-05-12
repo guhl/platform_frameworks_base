@@ -6810,6 +6810,51 @@ package android.content.pm {
     field public static final android.os.Parcelable.Creator CREATOR;
   }
 
+  public class LocationBean implements android.os.Parcelable {
+    ctor public LocationBean();
+    ctor public LocationBean(android.os.Parcel);
+    ctor public LocationBean(java.lang.String, double, double, double);
+    method public int describeContents();
+    method public java.lang.Double getAltitude();
+    method public java.lang.String getDescription();
+    method public long getId();
+    method public java.lang.Double getLatitude();
+    method public java.lang.Double getLongitude();
+    method public android.content.ContentValues getValues();
+    method public void readFromParcel(android.os.Parcel);
+    method public void setAltitude(java.lang.Double);
+    method public void setDescription(java.lang.String);
+    method public void setId(long);
+    method public void setLatitude(java.lang.Double);
+    method public void setLongitude(java.lang.Double);
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator CREATOR;
+  }
+
+  public class PFFInfoDatabase extends android.database.sqlite.SQLiteOpenHelper {
+    ctor public PFFInfoDatabase(android.content.Context);
+    method public android.content.pm.LocationBean addDefaultLocation();
+    method public android.content.pm.LocationBean addLocation(android.content.pm.LocationBean);
+    method public void deleteLocation(android.content.pm.LocationBean);
+    method public android.content.pm.LocationBean findLocationByDescription(java.lang.String);
+    method public android.content.pm.LocationBean findLocationById(long);
+    method public void onCreate(android.database.sqlite.SQLiteDatabase);
+    method public void onUpgrade(android.database.sqlite.SQLiteDatabase, int, int);
+    method public void updateLocation(android.content.pm.LocationBean);
+    field public static final java.lang.String DB_NAME = "pff_infos";
+    field public static final int DB_VERSION = 1; // 0x1
+    field public static final java.lang.String ENCODING_ASCII = "ASCII";
+    field public static final java.lang.String ENCODING_ISO88591 = "ISO8859_1";
+    field public static final java.lang.String ENCODING_UTF8 = "UTF-8";
+    field public static final java.lang.String FIELD_LOCATION_ALTITUDE = "altitude";
+    field public static final java.lang.String FIELD_LOCATION_DESCRIPTION = "description";
+    field public static final java.lang.String FIELD_LOCATION_LATITUDE = "latitude";
+    field public static final java.lang.String FIELD_LOCATION_LONGITUDE = "longitude";
+    field public static final java.lang.String TABLE_LOCATIONS = "locations";
+    field public static final java.lang.String TAG;
+    field public static final java.lang.Object[] dbLock;
+  }
+
   public class PackageInfo implements android.os.Parcelable {
     ctor public PackageInfo();
     method public int describeContents();
@@ -6923,6 +6968,9 @@ package android.content.pm {
     method public abstract boolean hasSystemFeature(java.lang.String);
     method public abstract boolean isRevokeablePermission(java.lang.String);
     method public abstract boolean isSafeMode();
+    method public abstract boolean isSpoofablePermission(java.lang.String);
+    method public abstract android.content.pm.LocationBean pffGetLocation();
+    method public abstract void pffSetLocation(android.content.pm.LocationBean);
     method public abstract java.util.List<android.content.pm.ResolveInfo> queryBroadcastReceivers(android.content.Intent, int);
     method public abstract java.util.List<android.content.pm.ProviderInfo> queryContentProviders(java.lang.String, int, int);
     method public abstract java.util.List<android.content.pm.InstrumentationInfo> queryInstrumentation(java.lang.String, int);
@@ -22640,6 +22688,9 @@ package android.test.mock {
     method public boolean hasSystemFeature(java.lang.String);
     method public boolean isRevokeablePermission(java.lang.String);
     method public boolean isSafeMode();
+    method public boolean isSpoofablePermission(java.lang.String);
+    method public android.content.pm.LocationBean pffGetLocation();
+    method public void pffSetLocation(android.content.pm.LocationBean);
     method public java.util.List<android.content.pm.ResolveInfo> queryBroadcastReceivers(android.content.Intent, int);
     method public java.util.List<android.content.pm.ProviderInfo> queryContentProviders(java.lang.String, int, int);
     method public java.util.List<android.content.pm.InstrumentationInfo> queryInstrumentation(java.lang.String, int);

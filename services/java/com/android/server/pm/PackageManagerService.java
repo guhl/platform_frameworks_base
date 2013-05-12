@@ -60,6 +60,8 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.IntentSender.SendIntentException;
+import android.content.pff.LocationBean;
+import android.content.pff.PFFInfoDatabase;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ContainerEncryptionParams;
@@ -6633,6 +6635,34 @@ public class PackageManagerService extends IPackageManager.Stub {
 			gp.revokedGids = appendInts(gp.revokedGids, bp.gids);
 		}	
 	}
+	
+    public LocationBean pffGetLocation() {
+    	PFFInfoDatabase pFFInfoDatabase = new PFFInfoDatabase(mContext);
+		LocationBean locationBean = pFFInfoDatabase.findLocationByDescription("gps");
+		if (locationBean == null) {
+	        if (DEBUG_PFF) {Log.d(TAG, "pff pffGetLocation: locationBean==null adding default");}
+			locationBean = pFFInfoDatabase.addDefaultLocation();
+		}  			
+        if (DEBUG_PFF) {Log.d(TAG, "pff pffGetLocation: locationBean lat="+locationBean.getLatitude()
+        		                                                          +",lon="+locationBean.getLongitude()
+        		                                                          +",alt="+locationBean.getAltitude());}
+        return locationBean;
+    }
+    
+    public void pffSetLocation(LocationBean loc) {
+    	PFFInfoDatabase pFFInfoDatabase = new PFFInfoDatabase(mContext);
+		LocationBean locationBean = pFFInfoDatabase.findLocationByDescription("gps");
+		if (locationBean == null) {
+	        if (DEBUG_PFF) {Log.d(TAG, "pff pffSetLocation: locationBean==null adding new");}
+	        loc.setDescription("gps");
+	        locationBean = pFFInfoDatabase.addLocation(loc);
+		} else {
+	        if (DEBUG_PFF) {Log.d(TAG, "pff pffSetLocation: locationBean!=null updating");}
+			loc.setId(locationBean.getId());
+			loc.setDescription(locationBean.getDescription());
+			pFFInfoDatabase.updateLocation(loc);
+		}
+    }
 			    
     /**
      * Get the verification agent timeout.
