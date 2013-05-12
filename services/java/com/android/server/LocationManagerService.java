@@ -25,6 +25,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pff.LocationBean;
+import android.content.pff.PFFInfoDatabase;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -195,6 +197,8 @@ public class LocationManagerService extends ILocationManager.Stub {
 
     // current active user on the device - other users are denied location data
     private int mCurrentUserId = UserHandle.USER_OWNER;
+    
+    private PFFInfoDatabase mPFFInfoDatabase;
 
     public LocationManagerService(Context context) {
         super();
@@ -209,6 +213,8 @@ public class LocationManagerService extends ILocationManager.Stub {
     public void systemRunning() {
         synchronized (mLock) {
             if (D) Log.d(TAG, "systemReady()");
+            // pff set info database
+            mPFFInfoDatabase = new PFFInfoDatabase(mContext);
 
             // fetch package manager
             mPackageManager = mContext.getPackageManager();
@@ -1935,20 +1941,30 @@ public class LocationManagerService extends ILocationManager.Stub {
         		"Requires ACCESS_COARSE_LOCATION", pid, uid);
         if (PFF_D) {Log.d(TAG, "pff spoofLocation: pffEnforceCallingPermission ACCESS_COARSE_LOCATION pid="+pid+" uid="+uid+" packageName="+packageName+" res="+res_c);}
     	if (location!=null){
+    		LocationBean locationBean = mPFFInfoDatabase.findLocationByDescription("gps");
+    		if (locationBean == null) {
+    	        if (PFF_D) {Log.d(TAG, "pff spoofLocation: pffEnforceCallingPermission locationBean==null adding default");}
+    			locationBean = mPFFInfoDatabase.addDefaultLocation();
+    		}  			
+	        if (PFF_D) {Log.d(TAG, "pff spoofLocation: pffEnforceCallingPermission locationBean lat="+locationBean.getLatitude()
+	        		                                                                           +",lon="+locationBean.getLongitude()
+	        		                                                                           +",alt="+locationBean.getAltitude());}        		                                                                           
     		if (res_f==PackageManager.PERMISSION_SPOOFED){
             	if (PFF_D) {Log.d(TAG, "pff spoofLocation: FINE spoofed");}
-    	    	location.setLatitude(27.988056);
-    	    	location.setLongitude(86.925278);
-    	    	location.setAltitude(8848.0);			
+    	    	location.setLatitude(locationBean.getLatitude());
+    	    	location.setLongitude(locationBean.getLongitude());
+    	    	// leave the altidute as it is provided by GPS
+    	    	// location.setAltitude(locationBean.getAltitude());			
     		}
           	Location noGPSLocation = location.getExtraLocation(Location.EXTRA_NO_GPS_LOCATION);
 	    	if (noGPSLocation!=null) {
 	    		if (res_c==PackageManager.PERMISSION_SPOOFED || 
 	    				(res_c!=PackageManager.PERMISSION_GRANTED && res_f==PackageManager.PERMISSION_SPOOFED) ){
 	            	if (PFF_D) {Log.d(TAG, "pff spoofLocation: COARSE spoofed");}
-			    	noGPSLocation.setLatitude(27.988056);
-			    	noGPSLocation.setLongitude(86.925278);
-			    	noGPSLocation.setAltitude(8848.0);
+			    	noGPSLocation.setLatitude(locationBean.getLatitude());
+			    	noGPSLocation.setLongitude(locationBean.getLongitude());
+	    	    	// leave the altidute as it is provided by noGPS
+			    	// noGPSLocation.setAltitude(locationBean.getAltitude());
 			    	location.setExtraLocation(Location.EXTRA_NO_GPS_LOCATION, noGPSLocation);
 	            }
 	    	}

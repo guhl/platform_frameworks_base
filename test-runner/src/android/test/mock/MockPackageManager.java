@@ -20,6 +20,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.content.pff.LocationBean;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ContainerEncryptionParams;
@@ -714,5 +715,21 @@ public class MockPackageManager extends PackageManager {
 	@Override
 	public void setRevokedPermissions(String packageName, String[] perms) {
 		throw new UnsupportedOperationException();
+	}
+
+	/**
+	* @hide
+	*/
+	@Override
+    public LocationBean pffGetLocation() {
+		throw new UnsupportedOperationException();	
+	}
+    
+	/**
+	* @hide
+	*/
+	@Override
+    public void pffSetLocation(LocationBean loc) {
+		throw new UnsupportedOperationException();			
 	}
 }

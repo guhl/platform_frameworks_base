@@ -20,6 +20,7 @@ package android.content.pm;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pff.LocationBean;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ContainerEncryptionParams;
@@ -436,5 +437,9 @@ interface IPackageManager {
     String[] getRevokedPermissions(String packageName);
     
     void setRevokedPermissions(String packageName, in String[] perms);
+    
+    LocationBean pffGetLocation();
+    
+    void pffSetLocation(in LocationBean loc);
     
 }

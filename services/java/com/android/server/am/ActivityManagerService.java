@@ -16681,11 +16681,12 @@ public final class ActivityManagerService extends ActivityManagerNative
             pid = tlsIdentity.pid;
         }
         // Root, system server and our own process get to do everything.
+        /*  
         if (uid == 0 || uid == Process.SYSTEM_UID || pid == MY_PID ||
             !Process.supportsProcesses()) {
             if (PFF_D) {Log.d(TAG, "pffCheckComponentPermission() called by root or system server -> granted");}
             return PackageManager.PERMISSION_GRANTED;
-        }
+        } */
         // If the target requires a specific UID, always fail for others.
         if (reqUid >= 0 && uid != reqUid) {
             Slog.w(TAG, "Permission denied: checkComponentPermission() reqUid=" + reqUid);

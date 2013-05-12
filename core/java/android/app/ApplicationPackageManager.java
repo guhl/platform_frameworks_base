@@ -21,6 +21,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.content.pff.LocationBean;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
@@ -1430,6 +1431,24 @@ final class ApplicationPackageManager extends PackageManager {
         }
     }
 
+    @Override
+    public LocationBean pffGetLocation() {
+        try {
+        	return mPM.pffGetLocation();
+        } catch (RemoteException e) {
+            // Should never happen!
+        }
+        return null;
+    }
+    
+    @Override
+    public void pffSetLocation(LocationBean loc) {
+        try {
+        	mPM.pffSetLocation(loc);
+        } catch (RemoteException e) {
+            // Should never happen!
+        }   	
+    }   
     
     private final ContextImpl mContext;
     private final IPackageManager mPM;
