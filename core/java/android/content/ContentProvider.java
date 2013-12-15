@@ -17,6 +17,7 @@
 package android.content;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static android.content.pm.PackageManager.PERMISSION_SPOOFED;
 
 import android.app.AppOpsManager;
 import android.content.pm.PathPermission;
@@ -215,10 +216,9 @@ public abstract class ContentProvider implements ComponentCallbacks2 {
                     if (context.getPackageManager().isSpoofablePermission(componentPerm)){
 	                int res = context.pffEnforceCallingPermission(componentPerm, "", Binder.getCallingPid(), Binder.getCallingUid());
 	                if (pff_dbg_level>=2) {Log.d(PFF_LOG_TAG, "query: pffEnforceCallingPermission = "+res);}
-	                if (res == PackageManager.PERMISSION_SPOOFED){
+	                if (res == PERMISSION_SPOOFED){
 	                    if (pff_dbg_level>=1) {Log.d(PFF_LOG_TAG, "query: permission "+componentPerm+" spoofed!");}
 	                    if (pff_dbg_level>=2) {Log.d(PFF_LOG_TAG, "query: uri was: "+uri);}
-	                    Uri.Builder builder = uri.buildUpon();
 	                    String limit = uri.getQueryParameter("limit");
 	                    String authority = uri.getAuthority();
 	                    if (pff_dbg_level>=3) {Log.d(PFF_LOG_TAG, "query: uri, path="+path+
@@ -229,26 +229,25 @@ public abstract class ContentProvider implements ComponentCallbacks2 {
 	                                                              ", limit="+limit);}	  
 	                    if (authority.equals(CalendarContract.AUTHORITY)){
 		                if (pff_dbg_level>=3) {Log.d(PFF_LOG_TAG, "query: authority.equals(CalendarContract.AUTHORITY)");}
-			            if (path.contains("/instances")){
-			                Uri.Builder builder = CalendarContract.Instances.CONTENT_URI.buildUpon();
-                                        int JD = Time.getJulianMondayFromWeeksSinceEpoch(1);
-                                        ContentUris.appendId(builder, JD);
-                                        ContentUris.appendId(builder, JD);
-                                        uri=builder.build();
-                                    }
-                                } else {
-                                    Uri.Builder builder = uri.buildUpon();
-                                    if (limit!=null){
-                                        builder.clearQuery();
-                                        if (pff_dbg_level>=3) {Log.d(PFF_LOG_TAG, "query: builder.clearQuery() -> builder.build()="+builder.build());}
-                                    }
-                                    builder.appendQueryParameter("limit", String.valueOf(0));
+                                if (path.contains("/instances")){
+                                    Uri.Builder builder = CalendarContract.Instances.CONTENT_URI.buildUpon();
+                                    int JD = Time.getJulianMondayFromWeeksSinceEpoch(1);
+                                    ContentUris.appendId(builder, JD);
+                                    ContentUris.appendId(builder, JD);
                                     uri=builder.build();
-                               }
+                                }
+                            } else {
+                                Uri.Builder builder = uri.buildUpon();
+                                if (limit!=null){
+                                    builder.clearQuery();
+                                    if (pff_dbg_level>=3) {Log.d(PFF_LOG_TAG, "query: builder.clearQuery() -> builder.build()="+builder.build());}
+                                }
+                                builder.appendQueryParameter("limit", String.valueOf(0));
+                                uri=builder.build();
                             }
-	                    if (pff_dbg_level>=2) {Log.d(PFF_LOG_TAG, "query: uri is: "+uri);}
-	                }
-                    }
+                        }
+	                if (pff_dbg_level>=2) {Log.d(PFF_LOG_TAG, "query: uri is: "+uri);}
+	            }
                 }
 
                 Cursor cur = ContentProvider.this.query(uri, projection, selection, selectionArgs, sortOrder,
@@ -457,16 +456,6 @@ public abstract class ContentProvider implements ComponentCallbacks2 {
             enforceWritePermissionInner(uri);
             if (mWriteOp != AppOpsManager.OP_NONE) {
                 return mAppOpsManager.noteOp(mWriteOp, Binder.getCallingUid(), callingPkg);
-
-        private void enforceReadPermissionInner(Uri uri) throws SecurityException {
-            final Context context = getContext();
-            final int pid = Binder.getCallingPid();
-            final int uid = Binder.getCallingUid();
-            String missingPerm = null;
-            
-
-            if (UserHandle.isSameApp(uid, mMyUid)) {
-                return;
             }
             return AppOpsManager.MODE_ALLOWED;
         }

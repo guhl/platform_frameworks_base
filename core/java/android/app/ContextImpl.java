@@ -185,9 +185,6 @@ class ContextImpl extends Context {
 
     private final static boolean PFF_DEBUG = true;
     
-    private static final HashMap<String, SharedPreferencesImpl> sSharedPrefs =
-            new HashMap<String, SharedPreferencesImpl>();
-
     /*package*/ LoadedApk mPackageInfo;
     private String mBasePackageName;
     private String mOpPackageName;
